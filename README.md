@@ -1,0 +1,2 @@
+- **main branch**: a knowledge base demo based on LangChain and RAG
+- **agentic-trial branch** : a knowledge base demo based on LangGraph and Agentic RAG
