@@ -33,10 +33,15 @@ def chunk(docs:str) ->list[Document]:
     return chunks
 
 #save to db
-def save2db(chunks:list[Document]) -> None:
+def save2db(chunks:list[Document],tag:str) -> None:
     documents = [Document(page_content=chunk) for chunk in chunks]
-    vectorstore = Chroma.from_documents(documents, embedding, persist_directory="./chroma_db")
-    print(f"Saved {len(documents)} chunks to Chroma DB.")
+    vectorstore = Chroma.from_documents(
+        documents,
+        embedding,
+        persist_directory="./chroma_db",
+        collection_name= tag,
+    )
+    print(f"Saved {len(documents)} chunks in ChromaDB.")
 
 #查知识库
 def query_db(question:str):
@@ -45,7 +50,7 @@ def query_db(question:str):
     # Top-k 条内容
     results = vectorstore.similarity_search(question, k=5)
     # 返回内容
-    matched_texts = [doc.page_content for doc in results]
+    matched_texts = "\n\n".join([doc.page_content for doc in results])
     return matched_texts
 
 #生成回答答案
