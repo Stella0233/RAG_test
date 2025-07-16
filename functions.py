@@ -1,22 +1,12 @@
-from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from langchain_community.vectorstores import Chroma
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.document_loaders import TextLoader
-# from langchain.chains import ConversationalRetrievalChain
-from dotenv import load_dotenv
-import os
+from typing import List
+import models
 
-load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
-
-model = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
-embedding = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 #文本分割器，langchain的
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=50)
-
 
 #数据文本加载
 def load_file(file_path: str) -> list[Document]:
@@ -37,33 +27,24 @@ def save2db(chunks:list[Document],tag:str) -> None:
     documents = [Document(page_content=chunk) for chunk in chunks]
     vectorstore = Chroma.from_documents(
         documents,
-        embedding,
+        models.embedding,
         persist_directory="./chroma_db",
         collection_name= tag,
     )
     print(f"Saved {len(documents)} chunks in ChromaDB.")
 
 #查知识库
-def query_db(question:str):
-    # 加载已有的向量数据库
-    vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=embedding)
-    # Top-k 条内容
-    results = vectorstore.similarity_search(question, k=5)
-    # 返回内容
-    matched_texts = "\n\n".join([doc.page_content for doc in results])
-    return matched_texts
+def query_db(question: str, tag:str) -> List[str]:
+    vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=models.embedding,collection_name=tag)
+    results: List[Document] = vectorstore.similarity_search(question, k=5)
+    return [doc.page_content for doc in results]
 
-#生成回答答案
-def answer(question:str, matched_texts:list[str]) -> str:
-    #写提示词
-    prompt = ""
-    prompt += "According to the context, answer the question."
-    prompt += "question:\n" + question + "\ncontext:"
-    for text in matched_texts:
-        prompt += "\n" + text
-        prompt +="____________\n"
-    #生成回答
-    response = model.invoke([
-        {"role": "user", "content": prompt}
-    ])
-    return response.content
+#生成回答
+def answer(question: str, contexts: List[str]) -> str:
+    prompt = "You are an assistant that answers questions based on the provided context.\n\n"
+    prompt += f"Question: {question}\n\nContext:\n"
+    for text in contexts:
+        prompt += text + "\n---\n"
+
+    response = models.model.invoke([{"role": "user", "content": prompt}])
+    return response["content"] if isinstance(response, dict) else response.content

@@ -1,6 +1,8 @@
 import shutil
+import uvicorn
+from langchain_core.messages import AIMessage
 from fastapi import FastAPI,UploadFile, File, Form
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse
 import functions,filename,lg
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -42,17 +44,29 @@ async def upload_data(file: UploadFile = File(...),tag=Form(...)):
     functions.save2db(chunks,tag)
     return {"message": f"{file_path}Successfully processed and saved chunks into ChromaDB in {tag} collection."}
 
-@app.get("/query",response_class=PlainTextResponse)
-async def query(question:str):
-    try:
-        response = lg.graph.invoke({"messages": [{"role": "user", "content": question}]})
-        last_message = next(
-            (msg for msg in reversed(response["messages"]) if msg["role"] == "assistant"),
-            {"content": "No answer generated."}
-        )
-        return {"answer": last_message["content"]}
-    except Exception as e:
-        import traceback
-        traceback.print_exc()  # 打印详细异常信息
-        return PlainTextResponse("Internal Server Error", status_code=500)
+from fastapi.responses import PlainTextResponse
 
+
+@app.get("/query", response_class=JSONResponse)
+async def query(question: str, tag:str):
+    result = lg.graph.invoke({
+        "messages": [
+            {"role": "system", "content": "Always use tools to search the knowledge base for any factual or technical question."},
+            {"role": "user", "content": question + "\n tag="+tag}
+        ]
+    })
+
+    #后台检查报错用
+    for msg in result["messages"]:
+        print(type(msg), msg)
+
+    # 修复：使用属性访问
+    last_message = next(
+        (msg for msg in reversed(result["messages"]) if isinstance(msg, AIMessage)),
+        None
+    )
+
+    return {"answer": last_message.content}
+
+# if __name__ == '__main__':
+#     uvicorn.run(app, port=8000)
