@@ -7,9 +7,10 @@ cmd:
 
 ---
 ## Branches
-- **master branch**: a knowledge base demo based on LangChain and RAG
+- **master branch**: latest version
 - **agentic-trial branch** : a knowledge base demo based on Agentic RAG
 - **langgraph-trial branch** : a knowledge base demo based on LangGraph & Agentic RAG
+- **langgraph-v1 branch** a knowledge base demo based on LangGraph & Agentic RAG with 3 nodes
 
 ---
 ## Structrue
