@@ -53,7 +53,7 @@ def answer(question: str, contexts: List[str]) -> str:
 
 #直接询问模型
 def answer_without_context(question: str) -> str:
-    prompt = "You are a knowledgable professor,please answer the question:\n\n"
+    prompt = "You are a knowledgable professor,limit your answer with in 300 words, please answer the question:\n\n"
     prompt += f"Question: {question}\n"
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content
