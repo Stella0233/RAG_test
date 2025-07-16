@@ -1,40 +1,89 @@
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph import StateGraph
 from langchain.agents import Tool
+from langchain.tools import tool
+from langchain_core.runnables import RunnableLambda
+from typing import TypedDict, Optional, List
 import functions,models
+import matplotlib.pyplot as plt
+
+from functions import answer
 
 
-### TOOLS ###
-#langchain tool只能接受一个传参
-def rag_query(input_text:str)->str:
-    #解析tag
-    if "tag=" in input_text:
-        question_part, tag_part = input_text.split("tag=", 1)
-        question = question_part.strip()
-        tag = tag_part.strip()
+#在节点之间传递数据
+class RAGState(TypedDict):
+    question: str
+    tag:Optional[str]
+    context: Optional[List[str]]
+    answer: Optional[str]
+
+
+@tool
+def query_knowledge_base(question: str, tag: str) -> List[str]:
+    """
+        查询向量数据库并基于上下文生成答案。输入为问题和对应的知识库标签。
+        """
+    return functions.query_db(question, tag)
+
+# Decision Node
+def agent_decision_node(state: RAGState) -> dict:
+    print("I'm decision node\n")
+    # tag = state["tag"]
+    tag = state.get("tag")
+    # 有tag时
+    if(tag is not None):
+        return {"next": "query_node"}  # 跳转到 query_knowledge_base
     else:
-        return "Error: Missing 'tag=' in the input"
-    #调用functions
-    contexts = functions.query_db(question,tag)
-    return functions.answer(question,contexts)
+        return {"next": "answer_node"}  # 直接回答
 
-rag_tool = Tool(
-    name="KnowledgeBaseSearch",
-    description="Use this tool to answer knowledge base questions. Input format: '<question>\\n tag=<tag>'",
-    func=rag_query
+agent_node = RunnableLambda(agent_decision_node)
+
+# Tool Node
+def query_node(state: RAGState) -> RAGState:
+    print("I'm query node\n")
+    question = state["question"]
+    tag = state["tag"]
+    context = query_knowledge_base.invoke({"question": question, "tag": tag})
+    return {**state, "context": context, "tag":None} #查完库之后要重置tag
+
+# Answer Node
+def answer_node(state: RAGState) -> RAGState:
+    print("I'm answer node\n")
+    question = state["question"]
+    tag = state.get("tag")
+    context = state.get("context", [])
+    if(tag is None):
+        print("I'm answer without context\n")
+        answer = functions.answer_without_context(question)
+    else:
+        answer = functions.answer(question, context)
+    return {**state, "answer": answer}
+
+### Workflow ###
+workflow = StateGraph(RAGState)
+
+# 添加节点
+workflow.add_node("agent_node", agent_node)
+workflow.add_node("query_node", query_node)
+workflow.add_node("answer_node", answer_node)
+
+# 添加边：从 agent → decision
+workflow.set_entry_point("agent_node")
+workflow.add_conditional_edges(
+    "agent_node",
+    lambda state: agent_decision_node(state)["next"],  # 返回字符串
+    {
+        "query_node": "query_node",
+        "answer_node": "answer_node"
+    }
 )
-tools = [rag_tool]
-### TOOLS ###
+
+workflow.add_edge("query_node", "answer_node")
+
+# 设置出口
+workflow.set_finish_point("answer_node")
+
+# 编译成 Graph
+graph = workflow.compile()
 
 
-### Graph ###
-# 定义 Agent（包含工具、模型）
-graph = create_react_agent(
-    tools=[rag_tool],
-    model=models.model,
-    prompt=("You are a helpful assistant. Use tools if needed to search the knowledge base."
-            "If a user's question may involve specialized, factual, or detailed knowledge, "
-            "always use tools to find answers from the knowledge base."
-            )
-)
-### Graph ###

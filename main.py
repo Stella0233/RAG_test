@@ -1,9 +1,11 @@
+from typing import Optional
 import shutil
-import uvicorn
+from pprint import pprint
 from langchain_core.messages import AIMessage
 from fastapi import FastAPI,UploadFile, File, Form
 from fastapi.responses import JSONResponse
 import functions,filename,lg
+from lg import RAGState
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -48,25 +50,20 @@ from fastapi.responses import PlainTextResponse
 
 
 @app.get("/query", response_class=JSONResponse)
-async def query(question: str, tag:str):
-    result = lg.graph.invoke({
-        "messages": [
-            {"role": "system", "content": "Always use tools to search the knowledge base for any factual or technical question."},
-            {"role": "user", "content": question + "\n tag="+tag}
-        ]
-    })
+async def query(question: str, tag:Optional[str]=None):
+    # 拼接用户内容
+    input_state = {
+        "question": question
+    }
+    if tag:
+        input_state["tag"] = tag
 
-    #后台检查报错用
-    for msg in result["messages"]:
-        print(type(msg), msg)
+    # 执行 workflow
+    result = lg.graph.invoke(input_state)
+    print("Final result state:")
+    for k, v in result.items():
+        print(f"{k}: {v}")
 
-    # 修复：使用属性访问
-    last_message = next(
-        (msg for msg in reversed(result["messages"]) if isinstance(msg, AIMessage)),
-        None
-    )
+    # 直接返回最终生成的答案
+    return {"answer": result.get("answer", "No answer generated.")}
 
-    return {"answer": last_message.content}
-
-# if __name__ == '__main__':
-#     uvicorn.run(app, port=8000)

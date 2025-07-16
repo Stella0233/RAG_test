@@ -5,6 +5,7 @@ from langchain_community.document_loaders import TextLoader
 from typing import List
 import models
 
+### Ingestion ###
 #文本分割器，langchain的
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=50)
 
@@ -33,6 +34,7 @@ def save2db(chunks:list[Document],tag:str) -> None:
     )
     print(f"Saved {len(documents)} chunks in ChromaDB.")
 
+### Retrieval ###
 #查知识库
 def query_db(question: str, tag:str) -> List[str]:
     vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=models.embedding,collection_name=tag)
@@ -46,5 +48,12 @@ def answer(question: str, contexts: List[str]) -> str:
     for text in contexts:
         prompt += text + "\n---\n"
 
+    response = models.model.invoke([{"role": "user", "content": prompt}])
+    return response["content"] if isinstance(response, dict) else response.content
+
+#直接询问模型
+def answer_without_context(question: str) -> str:
+    prompt = "You are a knowledgable professor,please answer the question:\n\n"
+    prompt += f"Question: {question}\n"
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content
