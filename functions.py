@@ -42,7 +42,7 @@ def query_db(question: str, tag:str) -> List[str]:
     return [doc.page_content for doc in results]
 
 #生成回答
-def answer(question: str, contexts: List[str]) -> str:
+def answer_with_context(question: str, contexts: List[str]) -> str:
     prompt = "You are an assistant that answers questions based on the provided context.\n\n"
     prompt += f"Question: {question}\n\nContext:\n"
     for text in contexts:
@@ -55,5 +55,13 @@ def answer(question: str, contexts: List[str]) -> str:
 def answer_without_context(question: str) -> str:
     prompt = "You are a knowledgable professor,limit your answer with in 200 words, please answer the question:\n\n"
     prompt += f"Question: {question}\n"
+    response = models.model.invoke([{"role": "user", "content": prompt}])
+    return response["content"] if isinstance(response, dict) else response.content
+
+#判断回答内容
+def judge_answer(question: str, answer:str) -> str:
+    prompt = "You now should reflect whether the answer is correlated with the question,and only reply 'yes' and 'no':\n\n"
+    prompt += f"Question: {question}\n"
+    prompt += f"Answer: {answer}\n"
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content

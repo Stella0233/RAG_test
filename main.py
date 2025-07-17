@@ -5,7 +5,7 @@ from langchain_core.messages import AIMessage
 from fastapi import FastAPI,UploadFile, File, Form
 from fastapi.responses import JSONResponse
 import functions,filename,lg
-from lg import RAGState
+from logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -65,5 +65,7 @@ async def query(question: str, tag:Optional[str]=None):
         print(f"{k}: {v}")
 
     # 直接返回最终生成的答案
-    return {"answer": result.get("answer", "No answer generated.")}
+    return {
+        "answer": result.get("answer", "No answer generated."),
+    }
 
