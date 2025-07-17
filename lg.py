@@ -56,6 +56,7 @@ def answer_node(state: RAGState) -> RAGState:
         print("I'm answer without context\n")
         answer = functions.answer_without_context(question)
     else:
+        print("I'm answer with context\n")
         answer = functions.answer(question, context)
     return {**state, "answer": answer}
 
