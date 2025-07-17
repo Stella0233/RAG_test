@@ -1,11 +1,8 @@
 from typing import Optional
 import shutil
-from pprint import pprint
-from langchain_core.messages import AIMessage
 from fastapi import FastAPI,UploadFile, File, Form
 from fastapi.responses import JSONResponse
 import functions,filename,lg
-from logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
