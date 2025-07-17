@@ -17,5 +17,9 @@ cmd:
 - `main.py`: FastApi Entrance
 - `.env`: save GOOGLE api key
 
+
+- `logger.py`: for debugging
+
+
 ## LangGraph Structure
 ![img.png](media/img.png)

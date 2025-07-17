@@ -5,6 +5,7 @@ from langchain.tools import tool
 from langchain_core.runnables import RunnableLambda
 from typing import TypedDict, Optional, List
 import functions,models
+from logger import logger
 import matplotlib.pyplot as plt
 
 from functions import answer
@@ -27,7 +28,7 @@ def query_knowledge_base(question: str, tag: str) -> List[str]:
 
 # Decision Node
 def agent_decision_node(state: RAGState) -> dict:
-    print("I'm decision node\n")
+    logger.debug("I'm decision node")
     # tag = state["tag"]
     tag = state.get("tag")
     # 有tag时
@@ -40,7 +41,7 @@ agent_node = RunnableLambda(agent_decision_node)
 
 # Tool Node
 def query_node(state: RAGState) -> RAGState:
-    print("I'm query node\n")
+    logger.debug("I'm query node")
     question = state["question"]
     tag = state["tag"]
     context = query_knowledge_base.invoke({"question": question, "tag": tag})
@@ -48,15 +49,15 @@ def query_node(state: RAGState) -> RAGState:
 
 # Answer Node
 def answer_node(state: RAGState) -> RAGState:
-    print("I'm answer node\n")
+    logger.debug("I'm answer node")
     question = state["question"]
-    tag = state.get("tag")
     context = state.get("context", [])
-    if(tag is None):
-        print("I'm answer without context\n")
+    print(context)
+    if(context == []):
+        logger.debug("I'm answer without context")
         answer = functions.answer_without_context(question)
     else:
-        print("I'm answer with context\n")
+        logger.debug("I'm answer with context")
         answer = functions.answer(question, context)
     return {**state, "answer": answer}
 
