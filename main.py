@@ -53,7 +53,8 @@ from fastapi.responses import PlainTextResponse
 async def query(question: str, tag:Optional[str]=None):
     # 拼接用户内容
     input_state = {
-        "question": question
+        "question": question,
+        "history":[]
     }
     if tag:
         input_state["tag"] = tag
@@ -67,5 +68,6 @@ async def query(question: str, tag:Optional[str]=None):
     # 直接返回最终生成的答案
     return {
         "answer": result.get("answer", "No answer generated."),
+        "thoughts": result.get("history","No history generated.")
     }
 

@@ -18,6 +18,7 @@ class RAGState(TypedDict):
     answer: Optional[str]
     reflection_count: int #判断是否合格
     reflecting:bool
+    history: List[str]
 
 
 @tool
@@ -30,6 +31,7 @@ def query_knowledge_base(question: str, tag: str) -> List[str]:
 # Decision Node
 def agent_decision_node(state: RAGState) -> dict:
     logger.debug("I'm decision node")
+    state["history"].append("Decision being made...")
     tag = state.get("tag")
     # 有tag时
     if(tag is not None):
@@ -42,6 +44,7 @@ agent_node = RunnableLambda(agent_decision_node)
 # Tool Node
 def query_node(state: RAGState) -> RAGState:
     logger.debug("I'm query node")
+    state["history"].append("Querying...")
     question = state["question"]
     tag = state["tag"]
     context = query_knowledge_base.invoke({"question": question, "tag": tag})
@@ -50,6 +53,7 @@ def query_node(state: RAGState) -> RAGState:
 # Answer Node
 def answer_node(state: RAGState) -> RAGState:
     logger.debug("I'm answer node")
+    state["history"].append("Answering...")
     question = state["question"]
     context = state.get("context", [])
     print(context)
@@ -64,6 +68,7 @@ def answer_node(state: RAGState) -> RAGState:
 # Reflection Node
 def reflection_node(state: RAGState) -> str:
     logger.debug("I'm reflection node")
+    state["history"].append("Reflecting...")
     count = state.get("reflection_count", 0)
     answer = state["answer"]
     question = state["question"]
