@@ -5,20 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b56e8e2e-5800-4553-95fe-3f8a871e14f9" name="Changes" comment="updated README.md">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/7964b600-59cb-495a-892a-6d3f04fd530b/data_level0.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/7964b600-59cb-495a-892a-6d3f04fd530b/header.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/7964b600-59cb-495a-892a-6d3f04fd530b/length.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/7964b600-59cb-495a-892a-6d3f04fd530b/link_lists.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/df1d9c49-96ad-4a42-bb87-545977043863/data_level0.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/df1d9c49-96ad-4a42-bb87-545977043863/header.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/df1d9c49-96ad-4a42-bb87-545977043863/length.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chroma_db/df1d9c49-96ad-4a42-bb87-545977043863/link_lists.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/media/img.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chroma_db/chroma.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/chroma_db/chroma.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +25,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="langgraph-trial" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -267,7 +255,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix bugs" />
     <MESSAGE value="updated README.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="updated README.md" />
+    <MESSAGE value="rewrite README" />
+    <option name="LAST_COMMIT_MESSAGE" value="rewrite README" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/test$functions.coverage" NAME="functions Coverage Results" MODIFIED="1752476946447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
