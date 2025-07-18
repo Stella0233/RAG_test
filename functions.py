@@ -1,13 +1,15 @@
+from click import prompt
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from langchain_community.vectorstores import Chroma
 from langchain_community.document_loaders import TextLoader
 from typing import List
 import models
+from prompts import Prompts
 
 ### Ingestion ###
 #文本分割器，langchain的
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=50)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
 #数据文本加载
 def load_file(file_path: str) -> list[Document]:
@@ -43,25 +45,26 @@ def query_db(question: str, tag:str) -> List[str]:
 
 #生成回答
 def answer_with_context(question: str, contexts: List[str]) -> str:
-    prompt = "You are an assistant that answers questions based on the provided context.\n\n"
-    prompt += f"Question: {question}\n\nContext:\n"
-    for text in contexts:
-        prompt += text + "\n---\n"
+    context_text = "\n---\n".join(contexts)
+    prompt = Prompts.ANSWER_WITH_CONTEXT.format(question=question, context=context_text)
 
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content
 
 #直接询问模型
 def answer_without_context(question: str) -> str:
-    prompt = "You are a knowledgable professor,limit your answer with in 200 words, please answer the question:\n\n"
-    prompt += f"Question: {question}\n"
+    prompt = Prompts.ANSWER_WITHOUT_CONTEXT.format(question=question)
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content
 
 #判断回答内容
 def judge_answer(question: str, answer:str) -> str:
-    prompt = "You now should reflect whether the answer is correlated with the question,and only reply 'yes' and 'no':\n\n"
-    prompt += f"Question: {question}\n"
-    prompt += f"Answer: {answer}\n"
+    prompt = Prompts.JUDGE_ANSWER.format(question=question, answer=answer)
+    response = models.model.invoke([{"role": "user", "content": prompt}])
+    return response["content"] if isinstance(response, dict) else response.content
+
+# 原文溯源
+def trace(answer:str, context:List[str]):
+    prompt = Prompts.TRACE.format(answer=answer, context=context)
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content

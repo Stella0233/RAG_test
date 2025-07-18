@@ -65,6 +65,7 @@ async def query(question: str, tag:Optional[str]=None):
     # 直接返回最终生成的答案
     return {
         "answer": result.get("answer", "No answer generated."),
-        "thoughts": result.get("history","No history generated.")
+        "thoughts": result.get("history","No history generated."),
+        "origin":result.get("origin","No origin generated.")
     }
 

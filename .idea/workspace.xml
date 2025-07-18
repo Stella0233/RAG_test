@@ -4,15 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b56e8e2e-5800-4553-95fe-3f8a871e14f9" name="Changes" comment="new feature: agent thinking process">
-      <change afterPath="$PROJECT_DIR$/media/img2.png" afterDir="false" />
+    <list default="true" id="b56e8e2e-5800-4553-95fe-3f8a871e14f9" name="Changes" comment="update README">
+      <change afterPath="$PROJECT_DIR$/prompts.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chroma_db/chroma.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/chroma_db/chroma.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chroma_db/df1d9c49-96ad-4a42-bb87-545977043863/length.bin" beforeDir="false" afterPath="$PROJECT_DIR$/chroma_db/df1d9c49-96ad-4a42-bb87-545977043863/length.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lg.py" beforeDir="false" afterPath="$PROJECT_DIR$/lg.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +63,7 @@
     &quot;Python.lg.executor&quot;: &quot;Run&quot;,
     &quot;Python.main.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;reflection__node&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/E/LLM/Projects/test/documents&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -242,6 +241,7 @@
       <workItem from="1752546837544" duration="4756000" />
       <workItem from="1752625909485" duration="7253000" />
       <workItem from="1752732795312" duration="2570000" />
+      <workItem from="1752801403911" duration="10569000" />
     </task>
     <task id="LOCAL-00001" summary="nodes communication is normal now">
       <option name="closed" value="true" />

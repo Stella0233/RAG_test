@@ -2,19 +2,21 @@ from langgraph.graph import StateGraph
 from langchain.tools import tool
 from langchain_core.runnables import RunnableLambda
 from typing import TypedDict, Optional, List
-from functions import query_db,answer_with_context,answer_without_context,judge_answer
+from functions import query_db,answer_with_context,answer_without_context,judge_answer,trace
 from logger import logger
-from models import model
 
 #在节点之间传递数据
 class RAGState(TypedDict):
+    #basic
     question: str
     tag:Optional[str]
     context: Optional[List[str]]
     answer: Optional[str]
-    reflection_count: int #判断是否合格
+    #pro
+    reflection_count: int #判断回答是否合格
     reflecting:bool
-    history: List[str]
+    history: List[str] #思考过程
+    origin: str #原文溯源
 
 
 @tool
@@ -50,9 +52,11 @@ def query_node(state: RAGState) -> RAGState:
 def answer_node(state: RAGState) -> RAGState:
     logger.debug("I'm answer node")
     state["history"].append("Answering...")
+    #
     question = state["question"]
     context = state.get("context", [])
     print(context)
+    #
     if(context == []):
         logger.debug("I'm answer without context")
         answer = answer_without_context(question)
@@ -60,6 +64,21 @@ def answer_node(state: RAGState) -> RAGState:
         logger.debug("I'm answer with context")
         answer = answer_with_context(question, context)
     return {**state, "answer": answer}
+
+# Origin Node
+def origin_node(state: RAGState) -> RAGState:
+    logger.debug("I'm origin node")
+    #
+    answer = state["answer"]
+    context = state["context"]
+    # 没有context不需要溯源
+    if (context == []):
+        return state
+    #溯源
+    state["history"].append("Originating...")
+    origin_sentences = trace(answer, context)
+    logger.debug(origin_sentences)
+    return {**state, "origin": origin_sentences}
 
 # Reflection Node
 def reflection_node(state: RAGState) -> str:
@@ -95,10 +114,13 @@ workflow.add_node("agent_node", agent_node)
 workflow.add_node("query_node", query_node)
 workflow.add_node("answer_node", answer_node)
 workflow.add_node("reflection_node", reflection_node)
+workflow.add_node("origin_node",origin_node)
 workflow.add_node("end_node", end_node)
 
-# 添加边：从 agent → decision
+# 添加边
+# entry
 workflow.set_entry_point("agent_node")
+# agent_node -> query_node | answer_node
 workflow.add_conditional_edges(
     "agent_node",
     lambda state: agent_decision_node(state)["next"],  # 返回字符串
@@ -107,9 +129,13 @@ workflow.add_conditional_edges(
         "answer_node": "answer_node"
     }
 )
+# query_node -> answer_node
 workflow.add_edge("query_node", "answer_node")
-workflow.add_edge("answer_node", "reflection_node")
-##
+# answer_node -> origin_node
+workflow.add_edge("answer_node", "origin_node")
+# oringin_node -> reflection_node
+workflow.add_edge("origin_node", "reflection_node")
+# reflection_node -> answer_node
 workflow.add_conditional_edges(
     "reflection_node",
     lambda state: reflection_node(state)["next"],
@@ -118,7 +144,7 @@ workflow.add_conditional_edges(
         "end_node": "end_node",
     }
 )
-# 设置出口
+# exit
 workflow.set_finish_point("end_node")
 
 # 编译成 Graph
