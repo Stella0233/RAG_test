@@ -1,10 +1,13 @@
 # README
 
+LangGraph + FastApi + ChromaDB
+
 ## Features
 A Personal Agentic RAG Knowledge Base
 - **file upload** : upload txt file and optionally tag it
 - **query** : query the knowledge base and optionally add a tag
 - **agent thinking process** : show the work process of the agent
+- **original text match** : analyze where the answer from
 
 ![img.png](media/img2.png)
 
@@ -27,10 +30,11 @@ frondend: `python -m http.server 3000`
 - `lg.py`: LangGraph Agent
 - `models.py`: import GOOGLE AI models
 - `main.py`: FastApi Entrance
+- `prompts.py`: prompts
 - `.env`: save GOOGLE api key
 - `filename.py`: tool script for file uploading
 - `logger.py`: for debugging
 
 
 ## LangGraph Structure
-![img.png](media/img.png)
+![img.png](media/img3.png)

@@ -1,4 +1,3 @@
-from click import prompt
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from langchain_community.vectorstores import Chroma
@@ -11,13 +10,19 @@ from prompts import Prompts
 #文本分割器，langchain的
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
-#数据文本加载
+# query rewriting
+def call_query_rewriter(question: str) -> str:
+    prompt = Prompts.REWRITE_PROMPT.format(question=question)
+    response = models.model.invoke([{"role": "user", "content": prompt}])
+    return response["content"] if isinstance(response, dict) else response.content
+
+#file loading
 def load_file(file_path: str) -> list[Document]:
     loader = TextLoader(file_path, encoding="utf-8")
     docs = loader.load()
     return docs
 
-#分块
+#chunking
 def chunk(docs:str) ->list[Document]:
     chunks = []
     for doc in docs:
@@ -66,5 +71,11 @@ def judge_answer(question: str, answer:str) -> str:
 # 原文溯源
 def trace(answer:str, context:List[str]):
     prompt = Prompts.TRACE.format(answer=answer, context=context)
+    response = models.model.invoke([{"role": "user", "content": prompt}])
+    return response["content"] if isinstance(response, dict) else response.content
+
+# 生成风格化回答
+def stylize(answer:str):
+    prompt = Prompts.STYLIZE_PROMPT.format(answer=answer)
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content

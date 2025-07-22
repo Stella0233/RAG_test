@@ -30,6 +30,7 @@ api_key = os.getenv("GOOGLE_API_KEY")
 async def root():
     return {"message": "Hello World"}
 
+# File Uploading
 @app.post("/upload-data")
 async def upload_data(file: UploadFile = File(...),tag=Form(...)):
     #生成文件名
@@ -45,7 +46,7 @@ async def upload_data(file: UploadFile = File(...),tag=Form(...)):
 
 from fastapi.responses import PlainTextResponse
 
-
+# Query LLM
 @app.get("/query", response_class=JSONResponse)
 async def query(question: str, tag:Optional[str]=None):
     # 拼接用户内容
@@ -58,6 +59,8 @@ async def query(question: str, tag:Optional[str]=None):
 
     # 执行 workflow
     result = lg.graph.invoke(input_state)
+
+    #测试输出
     print("Final result state:")
     for k, v in result.items():
         print(f"{k}: {v}")
@@ -69,3 +72,29 @@ async def query(question: str, tag:Optional[str]=None):
         "origin":result.get("origin","No origin generated.")
     }
 
+
+# Query with style
+@app.get("/query_with_style", response_class=JSONResponse)
+async def query(question: str, tag: Optional[str] = None):
+    # 拼接用户内容
+    input_state = {
+        "question": question,
+        "history": []
+    }
+    if tag:
+        input_state["tag"] = tag
+
+    # 执行 workflow
+    result = lg.graph.invoke(input_state)
+
+    # 直接返回最终生成的答案
+    return {
+        "style_answer": result.get("style_answer", "No answer generated."),
+        "thoughts": result.get("history", "No history generated."),
+    }
+
+
+# Show filelists
+@app.get("/filelist")
+async def filelist():
+    return None
