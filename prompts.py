@@ -1,6 +1,10 @@
 class Prompts:
 
-    ANSWER_WITH_CONTEXT = """You are an assistant that answers questions based on the provided context.
+    ANSWER_WITH_CONTEXT = """
+    You are an assistant that answers questions based on the provided context.
+    If necessary, you can refer to the history dialogue memory:
+    Memory: {memory}
+    
     Question: {question}
     Context: {context}
     """
@@ -8,7 +12,11 @@ class Prompts:
 
 
     ANSWER_WITHOUT_CONTEXT = """
-    You are a knowledgable professor,limit your answer with in 200 words, please answer the question:
+    You are a knowledgable professor,limit your answer with in 200 words, please answer the question.
+    If necessary, you can refer to the history dialogue memory:
+    Memory: {memory}
+    
+    Question: {question}
     """
 
 

@@ -2,7 +2,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from langchain_community.vectorstores import Chroma
 from langchain_community.document_loaders import TextLoader
-from typing import List
+from typing import List, Dict
 import models
 from prompts import Prompts
 
@@ -49,16 +49,16 @@ def query_db(question: str, tag:str) -> List[str]:
     return [doc.page_content for doc in results]
 
 #生成回答
-def answer_with_context(question: str, contexts: List[str]) -> str:
+def answer_with_context(question: str, contexts: List[str],memory:List[Dict[str, str]]) -> str:
     context_text = "\n---\n".join(contexts)
-    prompt = Prompts.ANSWER_WITH_CONTEXT.format(question=question, context=context_text)
+    prompt = Prompts.ANSWER_WITH_CONTEXT.format(question=question, context=context_text,memory=memory)
 
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content
 
 #直接询问模型
-def answer_without_context(question: str) -> str:
-    prompt = Prompts.ANSWER_WITHOUT_CONTEXT.format(question=question)
+def answer_without_context(question: str,memory:List[Dict[str, str]]) -> str:
+    prompt = Prompts.ANSWER_WITHOUT_CONTEXT.format(question=question,memory=memory)
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content
 

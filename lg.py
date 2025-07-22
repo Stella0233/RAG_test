@@ -1,12 +1,11 @@
+from fontTools.merge.base import mergeObjects
 from langgraph.graph import StateGraph
 from langchain.tools import tool
 from langchain_core.runnables import RunnableLambda
-from langchain.memory import ConversationBufferMemory
 from typing import TypedDict, Optional, List, Dict
 from functions import query_db,answer_with_context,answer_without_context,judge_answer,trace,call_query_rewriter,stylize
 from logger import logger
 
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 #在节点之间传递数据
 class RAGState(TypedDict):
@@ -16,12 +15,13 @@ class RAGState(TypedDict):
     context: Optional[List[str]]
     answer: Optional[str]
     #pro
-    style_answer: Optional[str] #风格化回答
+    style_needed:bool
+    # style_answer: Optional[str] #风格化回答
     reflection_count: int #判断回答是否合格
     reflecting:bool
     history: List[str] #思考过程
     origin: str #原文溯源
-    # memory: List[Dict[str, str]] #长期记忆
+    memory: List[Dict[str, str]]
 
 
 @tool
@@ -34,7 +34,10 @@ def query_knowledge_base(question: str, tag: str) -> List[str]:
 # Rewrite Query Node
 def rewrite_question_node(state: RAGState) -> RAGState:
     logger.debug("I'm questio rewriting node")
+    #
+    memory = state.get("memory", [])
     question = state["question"]
+    #
     rewritten = call_query_rewriter(question)
     state["history"].append(f"Rewrited question:{rewritten}")
     return {**state, "question": rewritten}
@@ -68,14 +71,15 @@ def answer_node(state: RAGState) -> RAGState:
     #
     question = state["question"]
     context = state.get("context", [])
+    memory = state.get("memory", [])
     print(context)
     #
     if(context == []):
         logger.debug("I'm answer without context")
-        answer = answer_without_context(question)
+        answer = answer_without_context(question,memory)
     else:
         logger.debug("I'm answer with context")
-        answer = answer_with_context(question, context)
+        answer = answer_with_context(question, context,memory)
     return {**state, "answer": answer}
 
 # Origin Node
@@ -98,8 +102,11 @@ def reflection_node(state: RAGState) -> str:
     logger.debug("I'm reflection node")
     state["history"].append("Reflecting...")
     count = state.get("reflection_count", 0)
+    #
+    style_needed = state.get("style_needed", False)
     answer = state["answer"]
     question = state["question"]
+    #
     response = judge_answer(question, answer)
     logger.debug(f"Reflection Response: {response}, Count: {count}")
 
@@ -108,10 +115,14 @@ def reflection_node(state: RAGState) -> str:
         state["reflection_count"] = count + 1
         state["reflecting"] = True  # 你可以用这个标记告诉 answer node 这是反思过程中的回答
         return {"next": "answer_node"}
+    elif(style_needed):
+        # 公文输出流程
+        state["reflecting"] = False
+        return {"next": "style_node"}
     else:
         # 结束流程
         state["reflecting"] = False
-        return {"next": "style_node"}
+        return {"next": "end_node"}
 
 # Style Node
 def style_node(state: RAGState) -> RAGState:
@@ -119,7 +130,7 @@ def style_node(state: RAGState) -> RAGState:
     state["history"].append("Styling...")
     answer = state["answer"]
     style_answer = stylize(answer)
-    return {**state, "style_answer": style_answer}
+    return {**state, "answer": style_answer}
 
 # end node（即使是空的）
 def end_node(state: RAGState) -> RAGState:
@@ -160,13 +171,14 @@ workflow.add_edge("query_node", "answer_node")
 workflow.add_edge("answer_node", "origin_node")
 # oringin_node -> reflection_node
 workflow.add_edge("origin_node", "reflection_node")
-# reflection_node -> answer_node | style_node
+# reflection_node -> answer_node | style_node | end_node
 workflow.add_conditional_edges(
     "reflection_node",
     lambda state: reflection_node(state)["next"],
     {
         "answer_node": "answer_node",
         "style_node": "style_node",
+        "end_node": "end_node"
     }
 )
 #style_node -> end_node

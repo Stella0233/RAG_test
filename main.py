@@ -4,6 +4,9 @@ from fastapi import FastAPI,UploadFile, File, Form
 from fastapi.responses import JSONResponse
 import functions,filename,lg
 from fastapi.middleware.cors import CORSMiddleware
+# 持久化
+from persistence import Persistence
+#
 from dotenv import load_dotenv
 import os
 
@@ -25,6 +28,7 @@ app.add_middleware(
 
 load_dotenv()
 api_key = os.getenv("GOOGLE_API_KEY")
+
 
 @app.get("/")
 async def root():
@@ -48,17 +52,32 @@ from fastapi.responses import PlainTextResponse
 
 # Query LLM
 @app.get("/query", response_class=JSONResponse)
-async def query(question: str, tag:Optional[str]=None):
+async def query(question: str, tag:Optional[str]=None, style_needed:bool=None,session_id: Optional[str] = "default"):
+    # 读取memory
+    if not session_id:
+        session_id = "default-session"
+    # 加载 memory
+    memory = Persistence.load_memory(session_id)
+
     # 拼接用户内容
     input_state = {
         "question": question,
-        "history":[]
+        "history":[],
+        "memory":memory,
     }
     if tag:
         input_state["tag"] = tag
+    if style_needed:
+        input_state["style_needed"] = style_needed
 
     # 执行 workflow
     result = lg.graph.invoke(input_state)
+
+    #更新memory
+    current_round = {"question": question, "answer": result.get("answer", "")}
+    memory.append(current_round)
+    # 保存 memory 到 redis
+    Persistence.save_memory(session_id, memory)
 
     #测试输出
     print("Final result state:")
@@ -70,27 +89,6 @@ async def query(question: str, tag:Optional[str]=None):
         "answer": result.get("answer", "No answer generated."),
         "thoughts": result.get("history","No history generated."),
         "origin":result.get("origin","No origin generated.")
-    }
-
-
-# Query with style
-@app.get("/query_with_style", response_class=JSONResponse)
-async def query(question: str, tag: Optional[str] = None):
-    # 拼接用户内容
-    input_state = {
-        "question": question,
-        "history": []
-    }
-    if tag:
-        input_state["tag"] = tag
-
-    # 执行 workflow
-    result = lg.graph.invoke(input_state)
-
-    # 直接返回最终生成的答案
-    return {
-        "style_answer": result.get("style_answer", "No answer generated."),
-        "thoughts": result.get("history", "No history generated."),
     }
 
 

@@ -1,6 +1,6 @@
 # README
 
-LangGraph + FastApi + ChromaDB
+LangGraph + FastApi + ChromaDB + Redis
 
 ## Features
 A Personal Agentic RAG Knowledge Base
@@ -8,6 +8,8 @@ A Personal Agentic RAG Knowledge Base
 - **query** : query the knowledge base and optionally add a tag
 - **agent thinking process** : show the work process of the agent
 - **original text match** : analyze where the answer from
+- **stylized answer** : default answer style setting
+- **memory** : support long conversations in context
 
 ![img.png](media/img2.png)
 
@@ -24,12 +26,14 @@ frondend: `python -m http.server 3000`
 - **langgraph-trial branch** : a knowledge base demo based on LangGraph & Agentic RAG
 - **langgraph-v1 branch** : a knowledge base demo based on LangGraph & Agentic RAG with 3 nodes
 - **reflection_node branch** : reflection node is added to the system
+- **memory branch** : memory is added to the system
 
 ## Structrue
+- `main.py`: FastApi Entrance
 - `functions.py`: Ingestion functions & Retrival functions
 - `lg.py`: LangGraph Agent
 - `models.py`: import GOOGLE AI models
-- `main.py`: FastApi Entrance
+- `persistence.py` save memory to Redis
 - `prompts.py`: prompts
 - `.env`: save GOOGLE api key
 - `filename.py`: tool script for file uploading
@@ -37,4 +41,4 @@ frondend: `python -m http.server 3000`
 
 
 ## LangGraph Structure
-![img.png](media/img3.png)
+![img_1.png](media/img_1.png)
