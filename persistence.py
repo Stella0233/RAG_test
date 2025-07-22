@@ -8,7 +8,7 @@ class Persistence:
 
     # 定义保存 memory 的函数
     def save_memory(session_id: str, memory: List[Dict[str, str]]):
-        Persistence.r.set(f"memory:{session_id}", json.dumps(memory))
+        Persistence.r.set(f"memory:{session_id}", json.dumps(memory),ex=600)
 
     # 定义加载 memory 的函数
     def load_memory(session_id: str) -> List[Dict[str, str]]:

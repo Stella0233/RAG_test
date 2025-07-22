@@ -42,3 +42,4 @@ frondend: `python -m http.server 3000`
 
 ## LangGraph Structure
 ![img_1.png](media/img_1.png)
+

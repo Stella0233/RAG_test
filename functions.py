@@ -10,6 +10,13 @@ from prompts import Prompts
 #文本分割器，langchain的
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
+#Dynamic top-k
+def dynamic_top_k(vectorstore:Chroma, tag: str) -> int:
+    count = vectorstore._collection.count()
+    print(f"Top-K Count: {count} \n\n")
+    # 计算 top-k（最少为 1 条，避免 k = 0）
+    return 10 if count > 300 else 5
+
 # query rewriting
 def call_query_rewriter(question: str) -> str:
     prompt = Prompts.REWRITE_PROMPT.format(question=question)
@@ -45,7 +52,8 @@ def save2db(chunks:list[Document],tag:str) -> None:
 #查知识库
 def query_db(question: str, tag:str) -> List[str]:
     vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=models.embedding,collection_name=tag)
-    results: List[Document] = vectorstore.similarity_search(question, k=5)
+    k = dynamic_top_k(vectorstore, tag)
+    results: List[Document] = vectorstore.similarity_search(question, k=k)
     return [doc.page_content for doc in results]
 
 #生成回答
