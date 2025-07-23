@@ -87,3 +87,12 @@ def stylize(answer:str):
     prompt = Prompts.STYLIZE_PROMPT.format(answer=answer)
     response = models.model.invoke([{"role": "user", "content": prompt}])
     return response["content"] if isinstance(response, dict) else response.content
+
+#删chromaDB
+def delete_on_tag(tag:str):
+    persist_directory = "chroma_db"
+    vectorstore = Chroma(persist_directory=persist_directory, collection_name=tag)
+    ids = vectorstore._collection.get()["ids"]  # 获取所有 ID
+    if ids:
+        vectorstore.delete(ids=ids)
+    print(f"Deleted {tag} information in ChromaDB.")

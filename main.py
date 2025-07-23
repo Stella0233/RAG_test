@@ -1,11 +1,14 @@
+from http.client import HTTPException
 from typing import Optional
 import shutil
 from fastapi import FastAPI,UploadFile, File, Form
 from fastapi.responses import JSONResponse
 import functions,filename,lg
 from fastapi.middleware.cors import CORSMiddleware
+from functions import delete_on_tag
 # 持久化
 from persistence import Persistence
+from sqlManager import db,cursor
 #
 from dotenv import load_dotenv
 import os
@@ -16,6 +19,7 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:3000/file-manager.html"
 ]
 
 app.add_middleware(
@@ -29,26 +33,36 @@ app.add_middleware(
 load_dotenv()
 api_key = os.getenv("GOOGLE_API_KEY")
 
-
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
 # File Uploading
 @app.post("/upload-data")
-async def upload_data(file: UploadFile = File(...),tag=Form(...)):
-    #生成文件名
+async def upload_data(file: UploadFile = File(...), tag=Form(...)):
+    # 1. 生成保存路径
     file_path = filename.get_next_filename()
-    # 保存文件到磁盘
+
+    # 2. 保存文件
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    # 3. 加载、切分、入库
     docs = functions.load_file(file_path)
     chunks = functions.chunk(docs)
-    functions.save2db(chunks,tag)
-    return {"message": f"{file_path}Successfully processed and saved chunks into ChromaDB in {tag} collection."}
+    functions.save2db(chunks, tag)
 
-from fastapi.responses import PlainTextResponse
+    # 4. 保存元数据到 MySQL
+    cursor.execute(
+        "INSERT INTO uploaded_files (file_name, file_path, tag) VALUES (%s, %s, %s)",
+        (file.filename, file_path, tag)
+    )
+    db.commit()
+
+    return {
+        "message": f"{file_path} successfully processed and saved chunks into ChromaDB in '{tag}' collection."
+    }
+
 
 # Query LLM
 @app.get("/query", response_class=JSONResponse)
@@ -93,6 +107,28 @@ async def query(question: str, tag:Optional[str]=None, style_needed:bool=None,se
 
 
 # Show filelists
-@app.get("/filelist")
-async def filelist():
-    return None
+@app.get("/list-files")
+def list_uploaded_files(tag: str = None):
+    if tag:
+        cursor.execute("SELECT id, file_name, upload_time FROM uploaded_files WHERE tag = %s", (tag,))
+    else:
+        cursor.execute("SELECT id, file_name, upload_time FROM uploaded_files")
+
+    result = cursor.fetchall()
+    return [{"id": r[0], "file_name": r[1], "upload_time": r[2].strftime('%Y-%m-%d %H:%M:%S')} for r in result]
+
+
+# Delete File
+@app.delete("/delete-file/{tag}")
+def delete_file(tag:str):
+    # 2. 删除 ChromaDB 中该 tag 对应的向量数据
+    try:
+        delete_on_tag(tag)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting vectors: {e}")
+
+    # 3. 删除 MySQL 中记录
+    cursor.execute("DELETE FROM uploaded_files WHERE tag = %s", (tag,))
+    db.commit()
+
+    return {"message": f"Successfully deleted MySQL record and vector data for tag: {tag}"}

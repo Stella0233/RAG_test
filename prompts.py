@@ -1,7 +1,7 @@
 class Prompts:
 
     ANSWER_WITH_CONTEXT = """
-    You are an assistant that answers questions based on the provided context.
+    You are an assistant that answers questions based on the provided context. Answer the question in Chinese.
     If necessary, you can refer to the history dialogue memory:
     Memory: {memory}
     
@@ -12,7 +12,7 @@ class Prompts:
 
 
     ANSWER_WITHOUT_CONTEXT = """
-    You are a knowledgable professor,limit your answer with in 200 words, please answer the question.
+    You are a knowledgable professor,limit your answer with in 200 words, please answer the question in Chinese.
     If necessary, you can refer to the history dialogue memory:
     Memory: {memory}
     
@@ -55,13 +55,11 @@ class Prompts:
     """
 
     STYLIZE_PROMPT = """
-    请将以下内容润色为一篇符合中国公文写作风格的通知类文稿，语言应庄重、规范，结构应包括背景说明、工作要求和结语，避免口语化表达。
+    请将以下内容润色为一篇符合中国公文写作风格的文稿，语言应庄重、规范，结构，避免口语化表达。
 
     要求：
-    - 使用“为了……”、“根据……”、“现就……事项通知如下”等句式
     - 语言准确、条理清晰，使用正式书面语
-    - 可使用编号条目（如“一、二、三”）列出具体措施
-    - 结尾处用“请予以贯彻执行”或“特此通知”等表达
+    - 可使用编号条目（如“一、二、三”）列出具体条目
     
     原始内容：
     {answer}

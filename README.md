@@ -1,10 +1,11 @@
 # README
 
-LangGraph + FastApi + ChromaDB + Redis
+LangGraph + FastApi + ChromaDB + Redis + MySQL
 
 ## Features
 A Personal Agentic RAG Knowledge Base
 - **file upload** : upload txt file and optionally tag it
+- **file management** : view all the files and manage them
 - **query** : query the knowledge base and optionally add a tag
 - **agent thinking process** : show the work process of the agent
 - **original text match** : analyze where the answer from
@@ -33,7 +34,8 @@ frondend: `python -m http.server 3000`
 - `functions.py`: Ingestion functions & Retrival functions
 - `lg.py`: LangGraph Agent
 - `models.py`: import GOOGLE AI models
-- `persistence.py` save memory to Redis
+- `persistence.py`: save memory to Redis
+- `sqlManager.py`: save data to MySQL
 - `prompts.py`: prompts
 - `.env`: save GOOGLE api key
 - `filename.py`: tool script for file uploading
@@ -41,5 +43,5 @@ frondend: `python -m http.server 3000`
 
 
 ## LangGraph Structure
-![img_1.png](media/img_1.png)
+![img.png](media/img4.png)
 
