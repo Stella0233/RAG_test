@@ -1,5 +1,6 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 import os
 
@@ -12,3 +13,4 @@ model = ChatGoogleGenerativeAI(
 )
 
 embedding = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+# embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-zh")

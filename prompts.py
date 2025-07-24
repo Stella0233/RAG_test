@@ -31,6 +31,7 @@ class Prompts:
 
     TRACE = """
     Your task is to trace the accurate original sentence in the given context that serves as the basis for the provided answer.
+    Important: Only return the sentences in the context field without any other content. Split sentences with line breaks.
     Answer: {answer}
     Context: {context}
     To trace the original sentence, you should:
@@ -55,7 +56,7 @@ class Prompts:
     """
 
     STYLIZE_PROMPT = """
-    请将以下内容润色为一篇符合中国公文写作风格的文稿，语言应庄重、规范，结构，避免口语化表达。
+    请将以下内容润色为一篇符合中国公文写作风格的文稿，语言应庄重、规范，结构，避免口语化表达。禁止改变内容原意。
 
     要求：
     - 语言准确、条理清晰，使用正式书面语

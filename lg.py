@@ -87,7 +87,7 @@ def origin_node(state: RAGState) -> RAGState:
     logger.debug("I'm origin node")
     #
     answer = state["answer"]
-    context = state["context"]
+    context = state.get("context", [])
     # 没有context不需要溯源
     if (context == []):
         return state
