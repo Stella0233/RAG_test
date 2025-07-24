@@ -8,7 +8,7 @@ from prompts import Prompts
 
 ### Ingestion ###
 #文本分割器，langchain的
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100,separators=["\n\n", "\n", ".", " ", ""])
 
 #Dynamic top-k
 def dynamic_top_k(vectorstore:Chroma, tag: str) -> int:

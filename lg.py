@@ -127,7 +127,7 @@ def reflection_node(state: RAGState) -> str:
 # Style Node
 def style_node(state: RAGState) -> RAGState:
     logger.debug("I'm style node")
-    state["history"].append("Styling...")
+    state["history"].append("Stylizng...")
     answer = state["answer"]
     style_answer = stylize(answer)
     return {**state, "answer": style_answer}

@@ -110,12 +110,12 @@ async def query(question: str, tag:Optional[str]=None, style_needed:bool=None,se
 @app.get("/list-files")
 def list_uploaded_files(tag: str = None):
     if tag:
-        cursor.execute("SELECT id, file_name, upload_time FROM uploaded_files WHERE tag = %s", (tag,))
+        cursor.execute("SELECT id, file_name, upload_time,tag FROM uploaded_files WHERE tag = %s", (tag,))
     else:
-        cursor.execute("SELECT id, file_name, upload_time FROM uploaded_files")
+        cursor.execute("SELECT id, file_name, upload_time,tag FROM uploaded_files")
 
     result = cursor.fetchall()
-    return [{"id": r[0], "file_name": r[1], "upload_time": r[2].strftime('%Y-%m-%d %H:%M:%S')} for r in result]
+    return [{"id": r[0], "file_name": r[1], "upload_time": r[2].strftime('%Y-%m-%d %H:%M:%S'), "tag":r[3]} for r in result]
 
 
 # Delete File
