@@ -1,7 +1,7 @@
 class Prompts:
 
     ANSWER_WITH_CONTEXT = """
-    You are an assistant that answers questions based on the provided context. Answer the question in Chinese.
+    You are an assistant that answers questions based on the provided context. Answer in details if necessary. Answer the question in Chinese.
     If necessary, you can refer to the history dialogue memory:
     Memory: {memory}
     
@@ -27,23 +27,26 @@ class Prompts:
     Answer: {answer}
     """
 
-
-
     TRACE = """
-    Your task is to trace the accurate original sentence in the given context that serves as the basis for the provided answer.
-    Important: Only return the sentences in the context field without any other content. Split sentences with line breaks.
-    Answer: {answer}
-    Context: {context}
-    To trace the original sentence, you should:
-    1. Analyze the key information in the answer.
-    2. Search for sentences in the context that contain the same or highly relevant key information.
-    3. Select the sentence that most accurately matches the answer as the original sentence, and return the sentence.
+    Your task is to identify and extract the original sentence(s) from the given context that most directly supports or corresponds to the provided answer.
+
+    Instructions:
+    1. Carefully analyze the answer, breaking it down sentence by sentence if needed.
+    2. For each part of the answer, search for sentence(s) in the context that contain the same or closely related key information, facts, or reasoning.
+    3. If no exact matches are found, look for sentences that are logically connected to the answer’s content and could reasonably serve as its basis.
+    4. Return only the sentence(s) from the context that best align with the answer. Each sentence should be on a separate line.
+    5. Do **not** include any explanation, commentary, or extra output—only the matched sentence(s) from the context.
+
+    Answer:
+    {answer}
+
+    Context:
+    {context}
     """
-
-
 
     REWRITE_PROMPT = """
     You are a helpful assistant that reformulates user questions to be well-formed, clear, and specific — without changing their meaning.
+    Rewrite the question in Chinese.
     
     Instructions:
     - Keep the rewritten question as a **single question**.

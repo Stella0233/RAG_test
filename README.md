@@ -2,6 +2,10 @@
 
 LangGraph + FastApi + ChromaDB + Redis + MySQL
 
+LLM: gemini
+
+Embedding: Qwen
+
 ## Features
 A Personal Agentic RAG Knowledge Base
 - **file upload** : upload txt file and optionally tag it
