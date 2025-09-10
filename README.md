@@ -17,8 +17,6 @@ A Personal Agentic RAG Knowledge Base
 ## Start
 backend: `uvicorn main:app --reload`
 
-frontend link : https://github.com/Stella0233/demo_frontend
-
 frondend: `python -m http.server 3000`
 
 ## Branches
